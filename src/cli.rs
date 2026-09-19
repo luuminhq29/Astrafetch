@@ -36,6 +36,11 @@ pub struct Cli {
         help = "Realtime refresh interval in seconds"
     )]
     pub refresh_rate: Option<u64>,
-    #[arg(short = 'V', long = "version", action = ArgAction::SetTrue, help = "Show version and author") ]
+    #[arg(
+        short = 'V',
+        long = "version",
+        action = ArgAction::SetTrue,
+        help = "Show version and author"
+    )]
     pub version_requested: bool,
 }

@@ -15,7 +15,13 @@ pub fn run(c: Config) -> Result<()> {
 
     let ls = logo::render(&c.logo, &s.os);
     let info = info_lines(&s);
-    let logo_width = ls.iter().map(display_width).max().unwrap_or(0).max(28) + 2;
+    let logo_width = ls
+        .iter()
+        .map(|line| display_width(line.as_str()))
+        .max()
+        .unwrap_or(0)
+        .max(28)
+        + 2;
 
     let n = ls.len().max(info.len());
     for i in 0..n {
