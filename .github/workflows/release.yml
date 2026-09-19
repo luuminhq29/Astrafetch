@@ -1,7 +1,12 @@
 name: Release
+
 on:
   push:
-    tags: ["v*"]
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -11,42 +16,103 @@ jobs:
           - runner: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             arch: amd64
+
           - runner: ubuntu-latest
             target: aarch64-unknown-linux-gnu
             arch: arm64
+
     runs-on: ${{ matrix.runner }}
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get version
+        id: version
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Building AstraFetch version $VERSION"
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
+
       - name: Install ARM64 linker
         if: matrix.arch == 'arm64'
-        run: sudo apt-get update && sudo apt-get install -y gcc-aarch64-linux-gnu
-      - name: Build
-        run: cargo build --release --target ${{ matrix.target }}
-      - name: Package
         run: |
-          mkdir -p dist/${{ matrix.arch }}/usr/bin
-          cp target/${{ matrix.target }}/release/astrafetch dist/${{ matrix.arch }}/usr/bin/astrafetch
-          ln -s astrafetch dist/${{ matrix.arch }}/usr/bin/asfetch
-          mkdir -p dist/${{ matrix.arch }}/DEBIAN
-          sed "s/^Architecture:.*/Architecture: ${{ matrix.arch }}/" packaging/debian/control > dist/${{ matrix.arch }}/DEBIAN/control
-          dpkg-deb --build --root-owner-group dist/${{ matrix.arch }} astrafetch_1.0.0_${{ matrix.arch }}.deb
-      - uses: actions/upload-artifact@v4
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+
+      - name: Build
+        run: |
+          cargo build --release --target ${{ matrix.target }}
+
+      - name: Package Debian
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -e
+
+          PACKAGE_DIR="dist/${{ matrix.arch }}"
+
+          mkdir -p "$PACKAGE_DIR/usr/bin"
+          mkdir -p "$PACKAGE_DIR/DEBIAN"
+
+          cp \
+            "target/${{ matrix.target }}/release/astrafetch" \
+            "$PACKAGE_DIR/usr/bin/astrafetch"
+
+          ln -s astrafetch "$PACKAGE_DIR/usr/bin/asfetch"
+
+          sed \
+            -e "s/^Version:.*/Version: ${VERSION}/" \
+            -e "s/^Architecture:.*/Architecture: ${{ matrix.arch }}/" \
+            packaging/debian/control \
+            > "$PACKAGE_DIR/DEBIAN/control"
+
+          dpkg-deb \
+            --build \
+            --root-owner-group \
+            "$PACKAGE_DIR" \
+            "astrafetch_${VERSION}_${{ matrix.arch }}.deb"
+
+          echo "Created:"
+          ls -lh "astrafetch_${VERSION}_${{ matrix.arch }}.deb"
+
+      - name: Upload Debian package
+        uses: actions/upload-artifact@v4
         with:
-          name: astrafetch-${{ matrix.arch }}
-          path: astrafetch_1.0.0_${{ matrix.arch }}.deb
+          name: astrafetch-${{ matrix.arch }}-deb
+          path: astrafetch_*.deb
+          if-no-files-found: error
+
   github-release:
+    name: Publish GitHub Release
     needs: build
     runs-on: ubuntu-latest
+
     permissions:
       contents: write
+
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download Debian packages
+        uses: actions/download-artifact@v4
         with:
+          pattern: astrafetch-*-deb
           path: dist
           merge-multiple: true
-      - uses: softprops/action-gh-release@v2
+
+      - name: Show release files
+        run: |
+          echo "Release assets:"
+          find dist -type f -maxdepth 2 -print -exec ls -lh {} \;
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          files: dist/*.deb
+          generate_release_notes: true
+          files: |
+            dist/*.deb
