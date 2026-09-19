@@ -2,15 +2,9 @@ use crate::system::SystemSnapshot;
 use crate::ui::theme::Theme;
 use ratatui::{
     prelude::*,
-    widgets::{Block, Borders, Gauge, Paragraph},
+    widgets::{Block, Borders, Paragraph},
 };
 
-pub fn gauge<'a>(label: &'a str, value: f64, t: Theme) -> Gauge<'a> {
-    Gauge::default()
-        .block(Block::default().borders(Borders::NONE).title(label))
-        .gauge_style(Style::default().fg(t.accent))
-        .ratio((value / 100.0).clamp(0.0, 1.0))
-}
 pub fn info_lines<'a>(s: &'a SystemSnapshot, t: Theme) -> Vec<Line<'a>> {
     vec![
         Line::from(vec![

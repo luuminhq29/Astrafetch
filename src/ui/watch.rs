@@ -8,7 +8,7 @@ use crossterm::{
 };
 use ratatui::{backend::CrosstermBackend, Terminal};
 use std::{
-    io::{self, Write},
+    io,
     time::{Duration, Instant},
 };
 
@@ -60,19 +60,12 @@ fn loop_app(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>, c: Config) ->
 fn show_help(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<()> {
     terminal.draw(|f|{let p=ratatui::widgets::Paragraph::new("q / ESC  Exit\np       Pause animation\nr       Refresh\ni       System information\nh       Help\n\nPress any key to return").block(ratatui::widgets::Block::default().borders(ratatui::widgets::Borders::ALL).title(" AstraFetch Help "));f.render_widget(p,f.area());})?;
     loop {
-        if event::poll(Duration::from_millis(250))? {
-            if matches!(event::read()?, Event::Key(_)) {
-                break;
-            }
+        if event::poll(Duration::from_millis(250))? && matches!(event::read()?, Event::Key(_)) {
+            break;
         }
     }
     Ok(())
 }
-#[allow(dead_code)]
-fn _flush<W: Write>(w: &mut W) -> io::Result<()> {
-    w.flush()
-}
-
 fn show_info(
     terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
     s: &SystemSnapshot,
@@ -87,10 +80,8 @@ fn show_info(
         f.render_widget(p, f.area());
     })?;
     loop {
-        if event::poll(Duration::from_millis(250))? {
-            if matches!(event::read()?, Event::Key(_)) {
-                break;
-            }
+        if event::poll(Duration::from_millis(250))? && matches!(event::read()?, Event::Key(_)) {
+            break;
         }
     }
     Ok(())

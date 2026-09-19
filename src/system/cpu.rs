@@ -35,10 +35,8 @@ pub fn collect() -> CpuInfo {
             if let Some((k, v)) = line.split_once(':') {
                 let k = k.trim();
                 let v = v.trim();
-                if k == "model name" || k == "Hardware" {
-                    if model == "Unknown" {
-                        model = v.into();
-                    }
+                if (k == "model name" || k == "Hardware") && model == "Unknown" {
+                    model = v.into();
                 }
                 if k == "cpu MHz" && freq == 0 {
                     freq = v.parse::<f64>().unwrap_or(0.0) as u64;
