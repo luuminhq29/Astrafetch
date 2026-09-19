@@ -1,0 +1,5 @@
+use serde::Serialize;
+use std::{process::Command, fs};
+#[derive(Debug,Clone,Serialize)] pub struct GpuInfo{pub model:String,pub usage_percent:Option<f64>,pub vram_bytes:Option<u64>,pub temperature_c:Option<f64>}
+pub fn collect()->GpuInfo{ if let Ok(out)=Command::new("nvidia-smi").args(["--query-gpu=name,utilization.gpu,memory.total,temperature.gpu","--format=csv,noheader,nounits"]).output(){if let Ok(s)=String::from_utf8(out.stdout){if let Some(l)=s.lines().next(){let p:Vec<&str>=l.split(',').map(str::trim).collect(); if p.len()>=4 {return GpuInfo{model:p[0].into(),usage_percent:p[1].parse().ok(),vram_bytes:p[2].parse::<u64>().ok().map(|m|m*1024*1024),temperature_c:p[3].parse().ok()};}}}}
+ let model=fs::read_dir("/sys/class/drm").ok().and_then(|it|it.filter_map(Result::ok).find_map(|e|{let n=e.file_name().to_string_lossy().into_owned();if n.starts_with("card") && !n.contains('-'){Some("GPU (DRM)".into())}else{None}})).unwrap_or_else(||"N/A".into()); GpuInfo{model,usage_percent:None,vram_bytes:None,temperature_c:None} }

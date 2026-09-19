@@ -1,0 +1,9 @@
+Package: astrafetch
+Version: 1.0.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: Lưu Minh Quang - Astra
+Description: A modern, fast and animated Linux system information tool.
+ AstraFetch is a native Linux terminal system-information and realtime monitor.
+ It works on TTY and SSH without a desktop environment.
