@@ -1,55 +1,78 @@
 use crate::system::os::OsInfo;
 
-pub fn logo(os: &OsInfo) -> Vec<String> {
-    let key = os.id.to_lowercase();
+pub fn render(mode: &str, os: &OsInfo) -> Vec<String> {
+    match mode.to_lowercase().as_str() {
+        "none" => Vec::new(),
+        "ubuntu" => ubuntu(),
+        "debian" => debian(),
+        "arch" => arch(),
+        "fedora" => fedora(),
+        "linux" => linux(),
+        "auto" => render_auto(os),
+        _ => render_auto(os),
+    }
+}
 
-    match key.as_str() {
-        "ubuntu" => vec![
-            "        _        ".to_string(),
-            "       / \\       ".to_string(),
-            "      /●●\\      ".to_string(),
-            "     /●●●●\\     ".to_string(),
-            "      \\  /       ".to_string(),
-            "    UBUNTU       ".to_string(),
-        ],
-
-        "debian" => vec![
-            "       .--.      ".to_string(),
-            "      /.-. '     ".to_string(),
-            "     /   |       ".to_string(),
-            "     \\  /        ".to_string(),
-            "      `--'       ".to_string(),
-            "    DEBIAN       ".to_string(),
-        ],
-
-        "arch" => vec![
-            "       /\\       ".to_string(),
-            "      /  \\      ".to_string(),
-            "     / /\\ \\     ".to_string(),
-            "    /_/  \\_\\    ".to_string(),
-            "      ARCH       ".to_string(),
-        ],
-
-        "fedora" => vec![
-            "      ______     ".to_string(),
-            "     / ____ \\    ".to_string(),
-            "    | /    \\ |   ".to_string(),
-            "    | \\____/ |   ".to_string(),
-            "     \\______/    ".to_string(),
-            "     FEDORA      ".to_string(),
-        ],
-
+fn render_auto(os: &OsInfo) -> Vec<String> {
+    match os.id.to_lowercase().as_str() {
+        "ubuntu" => ubuntu(),
+        "debian" => debian(),
+        "arch" | "archlinux" => arch(),
+        "fedora" => fedora(),
         _ => linux(),
     }
 }
 
+fn ubuntu() -> Vec<String> {
+    vec![
+        "        _        ".into(),
+        "       / \\       ".into(),
+        "      /● ●\\      ".into(),
+        "     /● ● ● ●\\   ".into(),
+        "      \\  /       ".into(),
+        "    UBUNTU       ".into(),
+    ]
+}
+
+fn debian() -> Vec<String> {
+    vec![
+        "       .--.      ".into(),
+        "      /.-. '     ".into(),
+        "     /   |       ".into(),
+        "     \\  /        ".into(),
+        "      `--'       ".into(),
+        "     DEBIAN      ".into(),
+    ]
+}
+
+fn arch() -> Vec<String> {
+    vec![
+        "       /\\        ".into(),
+        "      /  \\       ".into(),
+        "     / /\\ \\      ".into(),
+        "    /_/  \\_\\     ".into(),
+        "      ARCH       ".into(),
+    ]
+}
+
+fn fedora() -> Vec<String> {
+    vec![
+        "      ______     ".into(),
+        "     / ____ \\    ".into(),
+        "    | /    \\ |   ".into(),
+        "    | \\____/ |   ".into(),
+        "     \\______/    ".into(),
+        "     FEDORA      ".into(),
+    ]
+}
+
 fn linux() -> Vec<String> {
     vec![
-        "       ██████    ".to_string(),
-        "     ██████████  ".to_string(),
-        "    ███  ███  ███ ".to_string(),
-        "    ███  ███  ███ ".to_string(),
-        "    █████████████ ".to_string(),
-        "       LINUX      ".to_string(),
+        "       ██████       ".into(),
+        "     ██████████     ".into(),
+        "    ███  ███  ███   ".into(),
+        "    ███  ███  ███   ".into(),
+        "    █████████████    ".into(),
+        "       LINUX        ".into(),
     ]
 }
