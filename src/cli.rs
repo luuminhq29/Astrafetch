@@ -1,6 +1,5 @@
 use clap::{ArgAction, Parser};
 
-
 #[derive(Debug, Parser)]
 #[command(
     name = "astrafetch",
@@ -17,13 +16,25 @@ pub struct Cli {
     pub minimal: bool,
     #[arg(long, action = ArgAction::SetTrue, help = "Output machine-readable JSON")]
     pub json: bool,
-    #[arg(long, value_name = "THEME", help = "Theme: default, cyber, aurora, matrix, minimal, monochrome")]
+    #[arg(
+        long,
+        value_name = "THEME",
+        help = "Theme: default, cyber, aurora, matrix, minimal, monochrome"
+    )]
     pub theme: Option<String>,
-    #[arg(long, value_name = "LOGO", help = "Logo: auto, ubuntu, arch, debian, fedora, linux, custom, none")]
+    #[arg(
+        long,
+        value_name = "LOGO",
+        help = "Logo: auto, ubuntu, arch, debian, fedora, linux, custom, none"
+    )]
     pub logo: Option<String>,
     #[arg(long, action = ArgAction::SetTrue, help = "Disable animation")]
     pub no_animation: bool,
-    #[arg(long, value_name = "SECONDS", help = "Realtime refresh interval in seconds")]
+    #[arg(
+        long,
+        value_name = "SECONDS",
+        help = "Realtime refresh interval in seconds"
+    )]
     pub refresh_rate: Option<u64>,
     #[arg(short = 'V', long = "version", action = ArgAction::SetTrue, help = "Show version and author") ]
     pub version_requested: bool,

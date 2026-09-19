@@ -38,22 +38,37 @@ pub struct SystemSnapshot {
 impl SystemSnapshot {
     pub fn collect(_config: &Config) -> Result<Self> {
         Ok(Self {
-            name: "AstraFetch".into(), version: "1.0.0".into(), author: "Lưu Minh Quang - Astra".into(),
-            os: os::detect(), kernel: read_first("/proc/sys/kernel/osrelease").unwrap_or_else(|| "Unknown".into()),
-            hostname: hostname(), architecture: std::env::consts::ARCH.to_string(),
-            uptime_seconds: uptime::uptime()?.as_secs(), cpu: cpu::collect(), memory: memory::collect(),
-            gpu: gpu::collect(), disk: disk::collect(), network: network::collect(), temperature: temperature::collect(),
-            shell: shell::collect(), terminal: terminal::collect(), desktop: desktop::collect(),
+            name: "AstraFetch".into(),
+            version: "1.0.0".into(),
+            author: "Lưu Minh Quang - Astra".into(),
+            os: os::detect(),
+            kernel: read_first("/proc/sys/kernel/osrelease").unwrap_or_else(|| "Unknown".into()),
+            hostname: hostname(),
+            architecture: std::env::consts::ARCH.to_string(),
+            uptime_seconds: uptime::uptime()?.as_secs(),
+            cpu: cpu::collect(),
+            memory: memory::collect(),
+            gpu: gpu::collect(),
+            disk: disk::collect(),
+            network: network::collect(),
+            temperature: temperature::collect(),
+            shell: shell::collect(),
+            terminal: terminal::collect(),
+            desktop: desktop::collect(),
         })
     }
 }
 
 pub(crate) fn read_first(path: &str) -> Option<String> {
-    std::fs::read_to_string(path).ok().and_then(|s| s.lines().next().map(|x| x.trim().to_string())).filter(|s| !s.is_empty())
+    std::fs::read_to_string(path)
+        .ok()
+        .and_then(|s| s.lines().next().map(|x| x.trim().to_string()))
+        .filter(|s| !s.is_empty())
 }
 
 fn hostname() -> String {
-    read_first("/etc/hostname").unwrap_or_else(|| std::env::var("HOSTNAME").unwrap_or_else(|_| "Unknown".into()))
+    read_first("/etc/hostname")
+        .unwrap_or_else(|| std::env::var("HOSTNAME").unwrap_or_else(|_| "Unknown".into()))
 }
 
 pub fn read_os_release() -> std::collections::HashMap<String, String> {

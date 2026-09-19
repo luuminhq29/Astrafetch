@@ -1,7 +1,55 @@
 use crate::system::os::OsInfo;
-use std::{fs,path::PathBuf};
 
-pub fn render(request:&str, os:&OsInfo)->Vec<String>{let key=if request=="auto"{os.id.as_str()}else{request};if key=="none"{return Vec::new()}if key=="custom"{if let Some(home)=std::env::var_os("HOME"){let p=PathBuf::from(home).join(".config/astrafetch/logo.txt");if let Ok(s)=fs::read_to_string(p){return s.lines().map(str::to_string).collect()}}return vec!["[ custom logo missing ]".into()]}
-match key{"ubuntu"=>vec!["        _        ","       /\\       ","      /●●\\      ","     /●●●●\\     ","       \/        ","    UBUNTU       "].into_iter().map(String::from).collect(),"debian"=>vec!["       .--.      ","      /.-. '     ","     /   |       ","     \\  /        ","      `--'       ","    DEBIAN       "].into_iter().map(String::from).collect(),"arch"=>vec!["       /\\       ","      /  \\      ","     / /\\ \\     ","    /_/  \\_\\    ","      ARCH       "].into_iter().map(String::from).collect(),"fedora"=>vec!["      ______     ","     / ____ \\    ","    | /    \\ |   ","    | \\____/ |   ","     \\______/    ","     FEDORA      "].into_iter().map(String::from).collect(),"linux"=>linux(),"_=>{let mut l=linux();l.push(format!("     {}",os.name));l}}
+pub fn logo(os: &OsInfo) -> Vec<String> {
+    let key = os.id.to_lowercase();
+
+    match key.as_str() {
+        "ubuntu" => vec![
+            "        _        ".to_string(),
+            "       / \\       ".to_string(),
+            "      /●●\\      ".to_string(),
+            "     /●●●●\\     ".to_string(),
+            "      \\  /       ".to_string(),
+            "    UBUNTU       ".to_string(),
+        ],
+
+        "debian" => vec![
+            "       .--.      ".to_string(),
+            "      /.-. '     ".to_string(),
+            "     /   |       ".to_string(),
+            "     \\  /        ".to_string(),
+            "      `--'       ".to_string(),
+            "    DEBIAN       ".to_string(),
+        ],
+
+        "arch" => vec![
+            "       /\\       ".to_string(),
+            "      /  \\      ".to_string(),
+            "     / /\\ \\     ".to_string(),
+            "    /_/  \\_\\    ".to_string(),
+            "      ARCH       ".to_string(),
+        ],
+
+        "fedora" => vec![
+            "      ______     ".to_string(),
+            "     / ____ \\    ".to_string(),
+            "    | /    \\ |   ".to_string(),
+            "    | \\____/ |   ".to_string(),
+            "     \\______/    ".to_string(),
+            "     FEDORA      ".to_string(),
+        ],
+
+        _ => linux(),
+    }
 }
-fn linux()->Vec<String>{vec!["       ██████    ","     ██████████  ","    ███  ███  ███ ","    ███  ███  ███ ","    █████████████ ","       LINUX      "] .into_iter().map(String::from).collect()}
+
+fn linux() -> Vec<String> {
+    vec![
+        "       ██████    ".to_string(),
+        "     ██████████  ".to_string(),
+        "    ███  ███  ███ ".to_string(),
+        "    ███  ███  ███ ".to_string(),
+        "    █████████████ ".to_string(),
+        "       LINUX      ".to_string(),
+    ]
+}
