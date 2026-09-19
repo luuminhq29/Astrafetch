@@ -33,20 +33,32 @@ jobs:
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Building AstraFetch version $VERSION"
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
 
-      - name: Install ARM64 linker
+      - name: Install ARM64 toolchain
         if: matrix.arch == 'arm64'
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu
+          sudo apt-get install -y \
+            gcc-aarch64-linux-gnu \
+            g++-aarch64-linux-gnu \
+            binutils-aarch64-linux-gnu
+
+      - name: Verify ARM64 linker
+        if: matrix.arch == 'arm64'
+        run: |
+          which aarch64-linux-gnu-gcc
+          aarch64-linux-gnu-gcc --version
 
       - name: Build
+        env:
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
+          CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
+          CXX_aarch64_unknown_linux_gnu: aarch64-linux-gnu-g++
         run: |
           cargo build --release --target ${{ matrix.target }}
 
@@ -79,7 +91,6 @@ jobs:
             "$PACKAGE_DIR" \
             "astrafetch_${VERSION}_${{ matrix.arch }}.deb"
 
-          echo "Created:"
           ls -lh "astrafetch_${VERSION}_${{ matrix.arch }}.deb"
 
       - name: Upload Debian package
@@ -107,8 +118,7 @@ jobs:
 
       - name: Show release files
         run: |
-          echo "Release assets:"
-          find dist -type f -maxdepth 2 -print -exec ls -lh {} \;
+          find dist -type f -maxdepth 2 -print
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
